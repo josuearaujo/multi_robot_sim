@@ -85,13 +85,13 @@
 
   <!-- The odometry estimator, throttling, fake laser etc. go here -->
   <!-- All the stuff as from usual robot launch file -->
-  <include file="$(find multi_robot_system)/launch/include/move_base.launch.xml" >
+  <include file="$(find multi_robot_sim)/launch/include/move_base.launch.xml" >
     <arg name="robot_name" value="$(arg robot_name)" />
     <arg name="init_pose" value="$(arg init_pose)" />
   </include>
 
   <!--AMCL-->
-  <include file="$(find multi_robot_system)/launch/include/amcl.launch.xml">
+  <include file="$(find multi_robot_sim)/launch/include/amcl.launch.xml">
     <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
     <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
     <arg name="initial_pose_a" value="$(arg initial_pose_yaw)"/>
@@ -101,5 +101,5 @@
   </include>
 
   <!--Load agent parameters-->
-  <rosparam file="$(find multi_robot_system)/param/agent_params.yaml" command="load"/>
+  <rosparam file="$(find multi_robot_sim)/param/agent_params.yaml" command="load"/>
 </launch>

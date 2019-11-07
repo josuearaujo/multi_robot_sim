@@ -1,0 +1,18 @@
+# This is an action definition file, which has three parts: the goal
+# the result, and the feedback.
+# Part 1: the goal.
+#
+# The angle in degree the robot to turn, sent by client main
+float64 x
+float64 y
+
+---
+# Part 2: the result, sent by action server unpon completion
+#
+# How much time used
+int32 robot
+int32 status 
+---
+# Part 3: the feedback,to be sent periodically by server
+#
+# The amount of time elapsed from the start
