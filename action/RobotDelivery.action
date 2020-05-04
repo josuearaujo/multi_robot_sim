@@ -2,17 +2,20 @@
 # the result, and the feedback.
 # Part 1: the goal.
 #
-# The angle in degree the robot to turn, sent by client main
+# The coordinates x and y, where the robot should delivery the coffe
 float64 x
 float64 y
 
 ---
+
 # Part 2: the result, sent by action server unpon completion
 #
-# How much time used
+# The number of the robot who executed this action and the status of the requested delivery.
 int32 robot
 int32 status 
+
 ---
-# Part 3: the feedback,to be sent periodically by server
+
+# Part 3: the feedback, to be sent periodically by server
 #
-# The amount of time elapsed from the start
+# We don't have any feedback for this action

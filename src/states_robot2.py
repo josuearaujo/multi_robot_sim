@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# import roslib; roslib.load_manifest('smach_tutorials')
 import rospy
 import smach
 import smach_ros
@@ -21,10 +20,7 @@ class Cozinha(smach.State):
     def __init__(self):      
         smach.State.__init__(self, outcomes=['entregarPedido'],
                              output_keys=['goal'])
-        # rospy.init_node('robot2_listener', anonymous=True)
-        # rospy.Subscriber("robot2_delivery_request", String, self.getPos)
-        
-
+       
 
     def execute(self, userdata):
         rospy.loginfo('Executing state Cozinha')
@@ -64,7 +60,6 @@ class RealizandoEntrega(smach.State):
         smach.State.__init__(self, outcomes=['chegouDestino','retornarCozinha'],
                              input_keys=['goal'])
         self.move_base = actionlib.SimpleActionClient('robot2/move_base', MoveBaseAction)
-        # self.pub = rospy.Publisher("robots_status_topic", String, queue_size=10)
 
     def execute(self, userdata):
         rospy.loginfo('Executing state RealizandoEntrega')
@@ -76,7 +71,6 @@ class RealizandoEntrega(smach.State):
         self.move_base.wait_for_result()
 
         state = self.move_base.get_state()
-        # self.pub.publish("robot2:" + str(state))
         if state == GoalStatus.SUCCEEDED:
             return 'chegouDestino'
         else:
@@ -102,12 +96,11 @@ class RetornandoCozinha(smach.State):
     def __init__(self, deliveryRobot):
         smach.State.__init__(self, outcomes=['chegouCozinha', 'retornarCozinha', 'final'])
         self.move_base = actionlib.SimpleActionClient('robot2/move_base', MoveBaseAction)
-        # pub = rospy.Publisher('request_channel', String, queue_size=10)
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = "map"
         self.goal.target_pose.header.stamp = rospy.Time.now()
-        self.goal.target_pose.pose.position.x = -1
-        self.goal.target_pose.pose.position.y = 1
+        self.goal.target_pose.pose.position.x = 1.5
+        self.goal.target_pose.pose.position.y = 21
         self.goal.target_pose.pose.orientation.w = 1  
         self.deliveryRobot = deliveryRobot  
 

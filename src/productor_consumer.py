@@ -30,19 +30,6 @@ class ProducerThread(threading.Thread):
         rospy.init_node('producer_listener', anonymous=True)
         rospy.Subscriber("coffe_request_channel", String, self.addToQueue)
 
-    # def run(self):
-    #     
-
-
-    #     while True:
-    #         if not coffe_requests.full():
-    #             item = random.randint(1,10)
-    #             coffe_requests.put(item)
-    #             logging.debug('Putting ' + str(item)  
-    #                           + ' : ' + str(coffe_requests.qsize()) + ' items in queue')
-    #             time.sleep(random.random())
-    #     return
-
     def addToQueue(self, data):
         rospy.loginfo(data.data + '  -- size: ' + str(coffe_requests.qsize()))
         coffe_requests.put(data.data)
@@ -61,8 +48,8 @@ class ConsumerThread(threading.Thread):
                 for i in range(len(robots_status)):
                     if(robots_status[i] == 0):
                         pos = coffe_requests.get().split(',')
-                        pos_x = int(pos[0])
-                        pos_y = int(pos[1])
+                        pos_x = float(pos[0])
+                        pos_y = float(pos[1])
 
                         self.robots[i].setGoal(pos_x, pos_y)
         return
