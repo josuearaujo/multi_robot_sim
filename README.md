@@ -2,9 +2,9 @@ Esse repositório é fruto do meu Trabalho de Conclusão de Curso em Engenharia 
 
 Links para visualizar o projeto sendo executado em ambiente de simulação:
 
-	- https://youtu.be/N_OyoeiHZF8
-	- https://youtu.be/WKHKqFszIp4
-	- https://youtu.be/XxSGK61x3ms
+	https://youtu.be/N_OyoeiHZF8
+	https://youtu.be/WKHKqFszIp4
+	https://youtu.be/XxSGK61x3ms
 
 O trabalho completo pode ser lido no arquivo "TCC - Josue Araujo.pdf" que se encontra nesse repositório.
 
