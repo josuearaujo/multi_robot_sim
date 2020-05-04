@@ -48,16 +48,20 @@ Os seguintes passos devem ser seguidos para configurar o ambinete e executar o p
 
 Com o ambiente configurado, precisa-se iniciar os seguintes módulos do sistema:
 1º - Instanciar o ambiente de simulação, robos, etc:
+
 	$ roslaunch multi_robot_sim robots_gazebo_rviz.launch 
 
 2º - Servidor:
+
 	$ rosrun multi_robot_sim productor_consumer.py
 
 3º - Máquinas de estado dos Robôs:
+
 	$ rosrun multi_robot_sim states_robot1.py
 	$ rosrun multi_robot_sim states_robot2.py
 
 4º - Cliente (Simulador de pedidos de café):
+
 	$ rosrun multi_robot_sim client.py
 
 
