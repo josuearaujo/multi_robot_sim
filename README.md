@@ -1,6 +1,7 @@
 Esse repositório é fruto do meu Trabalho de Conclusão de Curso em Engenharia de Computação.
 
 Links para visualizar o projeto sendo executado em ambiente de simulação:
+
 	- https://youtu.be/N_OyoeiHZF8
 	- https://youtu.be/WKHKqFszIp4
 	- https://youtu.be/XxSGK61x3ms
