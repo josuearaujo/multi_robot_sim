@@ -10,7 +10,7 @@ import rospy
 from std_msgs.msg import String
 import actionlib
 from move_base_msgs.msg import MoveBaseAction
-from multi_robot_sim.msg import RobotDeliveryAction, RobotDeliveryGoal, RobotDeliveryResult
+from multi_robot_sim.msg import RobotDeliveryAction, RobotDeliveryGoal, RobotDeliveryResult, MoveRobotAction, MoveRobotFeedback, MoveRobotGoal, MoveRobotResult   
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -54,6 +54,33 @@ class ConsumerThread(threading.Thread):
                         self.robots[i].setGoal(pos_x, pos_y)
         return
 
+class WebController(threading.Thread):
+    # create messages that are used to publish feedback/result
+    _feedback = MoveRobotFeedback()
+    _result = MoveRobotResult()
+
+    def __init__(self, name, r):
+        self._action_name = name
+        self.robots = r
+        self._as = actionlib.SimpleActionServer(self._action_name, MoveRobotAction, execute_cb=self.execute_cb, auto_start = False)
+        self._as.start()
+      
+    def execute_cb(self, goal):
+        
+        for i in range(len(robots_status)):
+                    if(robots_status[i] == 0):
+                        # publish info to the console for the user
+                        rospy.loginfo('%s: Executing. The goal coordinate is %s ' % (self._action_name, goal.goalcoordinates))
+                        pos = goal.goalcoordinates.split(',')
+                        pos_x = float(pos[0])
+                        pos_y = float(pos[1])
+
+        self.robots[i].setGoal(pos_x, pos_y)
+
+    def send_result_to_web(self, result):
+        rospy.loginfo('%s: finished moving. ' % result)
+        self._as.set_succeeded(self._result)
+
 class RobotController(threading.Thread):
     receive_goal = False
     robotDeliveryGoal = RobotDeliveryGoal()
@@ -76,6 +103,7 @@ class RobotController(threading.Thread):
                 self.robot.wait_for_result()
 
                 result = self.robot.get_result()
+                server.send_result_to_web(result);
                 print(self.robot_server_name + " Resultado recebido!!")
                 robots_status[self.robot_number-1] = 0
 
@@ -109,11 +137,13 @@ if __name__ == '__main__':
             r.append(RobotController(robot_server_name, i+1))
             r[i].start()
     
-    p = ProducerThread(name='producer')
-    p.start()
-    c = ConsumerThread('consumer', r)
-    c.start()
+    # p = ProducerThread(name='producer')
+    # p.start()
+    # c = ConsumerThread('consumer', r)
+    # c.start()
 
 
     # rospy.Subscriber("robots_status_topic", String, robots_status_control)
+    rospy.init_node('robot_delivery')
+    server = WebController(rospy.get_name(), r)
     rospy.spin()
