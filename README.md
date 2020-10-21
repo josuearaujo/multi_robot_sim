@@ -25,7 +25,7 @@ Os seguintes passos devem ser seguidos para configurar o ambinete e executar o p
 2º - Clonar esse repositório na pasta src do seu workspace que acabou de ser criada.
 
 	$ cd ~/catkin_ws/src
-	$ git clone https://github.com/josuearaujo/multi_robot_sim.git
+	$ git clone https://github.com/gabrielmcoelho/multi_robot_sim.git
 
 3º - Voltar para a pasta raiz do seu workspace e executar o catkin_make:
 
