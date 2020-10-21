@@ -64,5 +64,5 @@ Os seguintes passos devem ser seguidos para configurar o ambiente e executar o p
 
 	$ roslaunch rosbridge_server rosbridge_websocket.launch
 	
-
+E, para finalizar, basta acessar o navegador no endereço http://localhost:8000/web_client.html
 
