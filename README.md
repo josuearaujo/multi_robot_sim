@@ -1,6 +1,6 @@
 Trabalho de Conclusão de Curso em Engenharia de Computação
 
-**Obs:** as seguintes configurações são apenas para **Ubuntu 16**
+**Obs:** as seguintes configurações são apenas para **Ubuntu 16** e pressupõem que o ROS e suas dependências já estejam instaladas
 
 Os seguintes passos devem ser seguidos para configurar o ambiente e executar o projeto:
 
