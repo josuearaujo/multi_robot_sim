@@ -66,6 +66,8 @@ class WebController(threading.Thread):
         self._as.start()
       
     def execute_cb(self, goal):
+
+        rospy.loginfo('POXA VIDA')
         
         for i in range(len(robots_status)):
                     if(robots_status[i] == 0):
@@ -74,11 +76,22 @@ class WebController(threading.Thread):
                         pos = goal.goalcoordinates.split(',')
                         pos_x = float(pos[0])
                         pos_y = float(pos[1])
+                        self.robots[i].setGoal(pos_x, pos_y)
+                        break
 
-        self.robots[i].setGoal(pos_x, pos_y)
+        self.success = True
+        r = rospy.Rate(1)
+        while(self.success):
+            self._feedback.currentcoordinates = 'entregando bb';
+            # publish the feedback
+            self._as.publish_feedback(self._feedback)
+            # this step is not necessary, the sequence is computed at 1 Hz for demonstration purposes
+            r.sleep()
 
     def send_result_to_web(self, result):
+        self.success = False
         rospy.loginfo('%s: finished moving. ' % result)
+        self._result.result = result;
         self._as.set_succeeded(self._result)
 
 class RobotController(threading.Thread):
@@ -103,7 +116,7 @@ class RobotController(threading.Thread):
                 self.robot.wait_for_result()
 
                 result = self.robot.get_result()
-                server.send_result_to_web(result);
+                server.send_result_to_web('YAEEEEW');
                 print(self.robot_server_name + " Resultado recebido!!")
                 robots_status[self.robot_number-1] = 0
 
