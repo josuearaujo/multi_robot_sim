@@ -82,6 +82,12 @@ class WebController(threading.Thread):
         self.success = True
         r = rospy.Rate(1)
         while(self.success):
+            if self._as.is_preempt_requested():
+                rospy.loginfo('%s: Preempted' % self._action_name)
+                self._result.result = 'cancelado!';
+                self._as.set_preempted(self._result);
+                self.success = False
+                break
             self._feedback.currentcoordinates = 'entregando bb';
             # publish the feedback
             self._as.publish_feedback(self._feedback)

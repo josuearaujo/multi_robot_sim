@@ -49,12 +49,14 @@ var moveRobotClient = new ROSLIB.ActionClient({
   actionName : 'multi_robot_sim/MoveRobotAction'
 });
 
+var goal = null;
+
 // perform move action after user clicks on button
 function moveRobot () {
   // generate random delivery goal
   var randomIndex = Math.floor(Math.random() * coordinates.length);
   console.warn('sending robot to coordinates ' + coordinates[randomIndex].x + ' and ' + coordinates[randomIndex].y);
-  var goal = new ROSLIB.Goal({
+  goal = new ROSLIB.Goal({
     actionClient : moveRobotClient,
     goalMessage : {
       goalcoordinates : coordinates[randomIndex].x + ', ' + coordinates[randomIndex].y
@@ -74,10 +76,16 @@ function moveRobot () {
   goal.send();
 }
 
+function cancelAction () {
+  console.warn('Action Cancelled');
+  goal.cancel();
+}
+
 </script>
 </head>
 
 <body>
-  <button onclick="moveRobot()">Mover robô para coordenada aleatória</button>  
+  <button onclick="moveRobot()">Mover robô para coordenada aleatória</button>
+  <button onclick="cancelAction()">cancelar ação</button>  
 </body>
 </html>
