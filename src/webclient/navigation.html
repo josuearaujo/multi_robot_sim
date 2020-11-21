@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script type="text/javascript" src="dependencies/easeljs.min.js"></script>
+<script type="text/javascript" src="dependencies/eventemitter2.min.js"></script>
+<script type="text/javascript" src="dependencies/roslib.min.js"></script>
+<script type="text/javascript" src="dependencies/ros2d.min.js"></script>
+<script type="text/javascript" src="dependencies/nav2d.js"></script>
+
+<script type="text/javascript">
+  /**
+   * Setup all GUI elements when the page is loaded.
+   */
+  function init() {
+    // Connect to ROS.
+    var ros = new ROSLIB.Ros({
+      url : 'ws://localhost:9090'
+    });
+
+    // Create the main viewer.
+    var viewer = new ROS2D.Viewer({
+      divID : 'nav',
+      width : 750,
+      height : 800
+    });
+
+    // Setup the nav client.
+    var nav = NAV2D.OccupancyGridClientNav({
+      ros : ros,
+      rootObject : viewer.scene,
+      viewer : viewer,
+      serverName : '/robot1/move_base',
+      poseTopicName: '/robot1/amcl_pose',
+      poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
+      withOrientation: true
+    });
+  }
+</script>
+</head>
+
+<body onload="init()">
+  <h1>Simple Navigation Example</h1>
+  <div id="nav"></div>
+</body>
+</html>
