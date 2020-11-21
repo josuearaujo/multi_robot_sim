@@ -339,7 +339,8 @@ NAV2D.OccupancyGridClientNav = function(options) {
   var continuous = options.continuous;
   this.serverName = options.serverName || '/move_base';
   this.actionName = options.actionName || 'move_base_msgs/MoveBaseAction';
-  this.poseTopicName = options.poseTopicName || '/robot_pose';
+  this.poseTopicName1 = options.poseTopicName1 || '/robot_pose';
+  this.poseTopicName2 = options.poseTopicName2 || '/robot_pose';
   this.poseMessageType = options.poseMessageType || 'geometry_msgs/Pose';
   this.rootObject = options.rootObject || new createjs.Container();
   this.viewer = options.viewer;
@@ -348,25 +349,46 @@ NAV2D.OccupancyGridClientNav = function(options) {
   this.navigator = null;
 
   // setup a client to get the map
-  var client = new ROS2D.OccupancyGridClient({
+  var client1 = new ROS2D.OccupancyGridClient({
     ros : this.ros,
     rootObject : this.rootObject,
     continuous : continuous,
     topic : topic
   });
-  client.on('change', function() {
+  var client2 = new ROS2D.OccupancyGridClient({
+    ros : this.ros,
+    rootObject : this.rootObject,
+    continuous : continuous,
+    topic : topic
+  });
+  client1.on('change', function() {
     that.navigator = new NAV2D.Navigator({
       ros : that.ros,
       serverName : that.serverName,
       actionName : that.actionName,
       rootObject : that.rootObject,
       withOrientation : that.withOrientation,
-      poseTopicName: that.poseTopicName,
+      poseTopicName: that.poseTopicName1,
       poseMessageType: that.poseMessageType
     });
     
     // scale the viewer to fit the map
-    that.viewer.scaleToDimensions(client.currentGrid.width, client.currentGrid.height);
-    that.viewer.shift(client.currentGrid.pose.position.x, client.currentGrid.pose.position.y);
+    that.viewer.scaleToDimensions(client1.currentGrid.width, client1.currentGrid.height);
+    that.viewer.shift(client1.currentGrid.pose.position.x, client1.currentGrid.pose.position.y);
+  });
+  client2.on('change', function() {
+    that.navigator = new NAV2D.Navigator({
+      ros : that.ros,
+      serverName : that.serverName,
+      actionName : that.actionName,
+      rootObject : that.rootObject,
+      withOrientation : that.withOrientation,
+      poseTopicName: that.poseTopicName2,
+      poseMessageType: that.poseMessageType
+    });
+    
+    // scale the viewer to fit the map
+    that.viewer.scaleToDimensions(client2.currentGrid.width, client2.currentGrid.height);
+    that.viewer.shift(client2.currentGrid.pose.position.x, client2.currentGrid.pose.position.y);
   });
 };

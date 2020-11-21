@@ -27,12 +27,13 @@
     });
 
     // Setup the nav client.
-    var nav = NAV2D.OccupancyGridClientNav({
+    var nav1 = NAV2D.OccupancyGridClientNav({
       ros : ros,
       rootObject : viewer.scene,
       viewer : viewer,
       serverName : '/robot1/move_base',
-      poseTopicName: '/robot1/amcl_pose',
+      poseTopicName1: '/robot1/amcl_pose',
+      poseTopicName2: '/robot2/amcl_pose',
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
       withOrientation: true
     });
