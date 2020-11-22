@@ -14,6 +14,7 @@
    * Setup all GUI elements when the page is loaded.
    */
   function init() {
+    window.selectedRobotIndex = 0
     // Connect to ROS.
     var ros = new ROSLIB.Ros({
       url : 'ws://localhost:9090'
@@ -31,18 +32,28 @@
       ros : ros,
       rootObject : viewer.scene,
       viewer : viewer,
-      serverName : '/robot1/move_base',
+      serverName1 : '/robot1/move_base',
+      serverName2 : '/robot2/move_base',
       poseTopicName1: '/robot1/amcl_pose',
       poseTopicName2: '/robot2/amcl_pose',
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
       withOrientation: true
     });
   }
+
+  function switchRobot() {
+    if(window.selectedRobotIndex === 0) {
+      window.selectedRobotIndex = 1;
+    } else {
+      window.selectedRobotIndex = 0;
+    }
+  }
 </script>
 </head>
 
 <body onload="init()">
   <h1>Simple Navigation Example</h1>
+  <button onclick="switchRobot()">Switch Robot</button>
   <div id="nav"></div>
 </body>
 </html>

@@ -81,6 +81,7 @@ NAV2D.ImageMapClientNav = function(options) {
  *   * poseMessageType (optional) - poseTopicName's message type (default 'geometry_msgs/Pose')
  *   * rootObject (optional) - the root object to add the click listeners to and render robot markers to
  *   * withOrientation (optional) - if the Navigator should consider the robot orientation (default: false)
+ *   * index (optional) - useful if multiple robots are present
  */
 NAV2D.Navigator = function(options) {
   var that = this;
@@ -91,6 +92,7 @@ NAV2D.Navigator = function(options) {
   var poseTopicName = options.poseTopicName || '/robot_pose';
   var poseMessageType = options.poseMessageType || 'geometry_msgs/Pose';
   var withOrientation = options.withOrientation || false;
+  var index = options.index;
   this.rootObject = options.rootObject || new createjs.Container();
 
   // setup the actionlib client
@@ -106,6 +108,10 @@ NAV2D.Navigator = function(options) {
    * @param pose - the goal pose
    */
   function sendGoal(pose) {
+    if(index !== window.selectedRobotIndex){
+      console.warn(index + ': vou fazer nada');
+      return;
+    };
     // create a goal
     var goal = new ROSLIB.Goal({
       actionClient : actionClient,
@@ -337,7 +343,8 @@ NAV2D.OccupancyGridClientNav = function(options) {
   this.ros = options.ros;
   var topic = options.topic || '/map';
   var continuous = options.continuous;
-  this.serverName = options.serverName || '/move_base';
+  this.serverName1 = options.serverName1 || '/move_base';
+  this.serverName2 = options.serverName2 || '/move_base';
   this.actionName = options.actionName || 'move_base_msgs/MoveBaseAction';
   this.poseTopicName1 = options.poseTopicName1 || '/robot_pose';
   this.poseTopicName2 = options.poseTopicName2 || '/robot_pose';
@@ -364,12 +371,13 @@ NAV2D.OccupancyGridClientNav = function(options) {
   client1.on('change', function() {
     that.navigator = new NAV2D.Navigator({
       ros : that.ros,
-      serverName : that.serverName,
+      serverName : that.serverName1,
       actionName : that.actionName,
       rootObject : that.rootObject,
       withOrientation : that.withOrientation,
       poseTopicName: that.poseTopicName1,
-      poseMessageType: that.poseMessageType
+      poseMessageType: that.poseMessageType,
+      index: 0
     });
     
     // scale the viewer to fit the map
@@ -379,12 +387,13 @@ NAV2D.OccupancyGridClientNav = function(options) {
   client2.on('change', function() {
     that.navigator = new NAV2D.Navigator({
       ros : that.ros,
-      serverName : that.serverName,
+      serverName : that.serverName2,
       actionName : that.actionName,
       rootObject : that.rootObject,
       withOrientation : that.withOrientation,
       poseTopicName: that.poseTopicName2,
-      poseMessageType: that.poseMessageType
+      poseMessageType: that.poseMessageType,
+      index: 1
     });
     
     // scale the viewer to fit the map
