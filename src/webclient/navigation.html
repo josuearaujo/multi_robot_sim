@@ -28,7 +28,7 @@
     });
 
     // Setup the nav client.
-    var nav1 = NAV2D.OccupancyGridClientNav({
+    window.nav = NAV2D.OccupancyGridClientNav({
       ros : ros,
       rootObject : viewer.scene,
       viewer : viewer,
@@ -37,7 +37,7 @@
       poseTopicName1: '/robot1/amcl_pose',
       poseTopicName2: '/robot2/amcl_pose',
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
-      withOrientation: true
+      withOrientation: false
     });
   }
 
@@ -48,12 +48,18 @@
       window.selectedRobotIndex = 0;
     }
   }
+
+  function startPatrol() {  
+    console.log('starting patrol...');
+    window.nav.navigator1.startPatrol([{x: 527, y: 264}, {x: 455, y: 261}, {x: 450, y: 339}, {x: 526, y: 338}]);
+  }
 </script>
 </head>
 
 <body onload="init()">
   <h1>Simple Navigation Example</h1>
   <button onclick="switchRobot()">Switch Robot</button>
+  <button onclick="startPatrol()">Start Patrol</button>
   <div id="nav"></div>
 </body>
 </html>

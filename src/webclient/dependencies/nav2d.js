@@ -108,6 +108,8 @@ NAV2D.Navigator = function(options) {
    * @param pose - the goal pose
    */
   function sendGoal(pose) {
+    console.log('sending goal...');
+    console.log(pose);
     if(index !== window.selectedRobotIndex){
       return;
     };
@@ -141,8 +143,45 @@ NAV2D.Navigator = function(options) {
 
     goal.on('result', function() {
       that.rootObject.removeChild(goalMarker);
+      if(that.patrol && that.patrol.active) {
+        var coordIndex = that.patrol.nextIndex;
+        var coords = stage.globalToRos(that.patrol.coords[coordIndex].x, that.patrol.coords[coordIndex].y);
+        var pose = new ROSLIB.Pose({
+          position : new ROSLIB.Vector3(coords)
+        });
+        that.patrol.nextIndex++;
+        that.patrol.nextIndex = that.patrol.nextIndex % that.patrol.coords.length;
+        sendGoal(pose);
+      } else {
+        console.log('entrou no else :/');
+      }
     });
   }
+
+  that.sendGoal = sendGoal;
+
+  function startPatrol(posePositions) {
+    that.patrol = {
+      active: true,
+      coords: posePositions,
+      nextIndex: 0
+    };
+
+    var stage;
+    if (that.rootObject instanceof createjs.Stage) {
+      stage = that.rootObject;
+    } else {
+      stage = that.rootObject.getStage();
+    }
+    var coords = stage.globalToRos(posePositions[0].x, posePositions[0].y);
+    var pose = new ROSLIB.Pose({
+      position : new ROSLIB.Vector3(coords)
+    });
+    // send the goal
+    sendGoal(pose);
+  }
+
+  that.startPatrol = startPatrol;
 
   // get a handle to the stage
   var stage;
@@ -199,6 +238,8 @@ NAV2D.Navigator = function(options) {
   if (withOrientation === false){
     // setup a double click listener (no orientation)
     this.rootObject.addEventListener('dblclick', function(event) {
+      console.log(event.stageX);
+      console.log(event.stageY);
       // convert to ROS coordinates
       var coords = stage.globalToRos(event.stageX, event.stageY);
       var pose = new ROSLIB.Pose({
@@ -388,4 +429,6 @@ NAV2D.OccupancyGridClientNav = function(options) {
     that.viewer.scaleToDimensions(client.currentGrid.width, client.currentGrid.height);
     that.viewer.shift(client.currentGrid.pose.position.x, client.currentGrid.pose.position.y);
   });
+
+  return that;
 };
