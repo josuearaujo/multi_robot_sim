@@ -107,12 +107,8 @@ NAV2D.Navigator = function(options) {
    *
    * @param pose - the goal pose
    */
-  function sendGoal(pose) {
-    console.log('sending goal...');
-    console.log(pose);
-    if(index !== window.selectedRobotIndex){
-      return;
-    };
+  function sendGoal(pose, withoutMarker) {
+    console.log('sending goal to robot ' + (index+1));
     // create a goal
     var goal = new ROSLIB.Goal({
       actionClient : actionClient,
@@ -137,8 +133,13 @@ NAV2D.Navigator = function(options) {
     goalMarker.x = pose.position.x;
     goalMarker.y = -pose.position.y;
     goalMarker.rotation = stage.rosQuaternionToGlobalTheta(pose.orientation);
-    goalMarker.scaleX = 0.5 / stage.scaleX;
-    goalMarker.scaleY = 0.5 / stage.scaleY;
+    if(withoutMarker) {
+      goalMarker.scaleX = 0 / stage.scaleX;
+      goalMarker.scaleY = 0 / stage.scaleY;
+    } else {
+      goalMarker.scaleX = 0.5 / stage.scaleX;
+      goalMarker.scaleY = 0.5 / stage.scaleY;
+    }
     that.rootObject.addChild(goalMarker);
 
     goal.on('result', function() {
@@ -151,9 +152,7 @@ NAV2D.Navigator = function(options) {
         });
         that.patrol.nextIndex++;
         that.patrol.nextIndex = that.patrol.nextIndex % that.patrol.coords.length;
-        sendGoal(pose);
-      } else {
-        console.log('entrou no else :/');
+        sendGoal(pose, true);
       }
     });
   }
@@ -178,7 +177,7 @@ NAV2D.Navigator = function(options) {
       position : new ROSLIB.Vector3(coords)
     });
     // send the goal
-    sendGoal(pose);
+    sendGoal(pose, true);
   }
 
   that.startPatrol = startPatrol;
@@ -238,8 +237,6 @@ NAV2D.Navigator = function(options) {
   if (withOrientation === false){
     // setup a double click listener (no orientation)
     this.rootObject.addEventListener('dblclick', function(event) {
-      console.log(event.stageX);
-      console.log(event.stageY);
       // convert to ROS coordinates
       var coords = stage.globalToRos(event.stageX, event.stageY);
       var pose = new ROSLIB.Pose({

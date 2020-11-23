@@ -43,15 +43,22 @@
 
   function switchRobot() {
     if(window.selectedRobotIndex === 0) {
+      console.log('SELECTED ROBOT 2');
       window.selectedRobotIndex = 1;
     } else {
+      console.log('SELECTED ROBOT 1');
       window.selectedRobotIndex = 0;
     }
   }
 
   function startPatrol() {  
-    console.log('starting patrol...');
-    window.nav.navigator1.startPatrol([{x: 527, y: 264}, {x: 455, y: 261}, {x: 450, y: 339}, {x: 526, y: 338}]);
+    if(window.selectedRobotIndex === 0) {
+      console.log('starting robot 1 patrol...');
+      window.nav.navigator1.startPatrol([{x: 527, y: 264}, {x: 455, y: 261}, {x: 450, y: 339}, {x: 526, y: 338}]);
+    } else {
+      console.log('starting robot 2 patrol...');
+      window.nav.navigator2.startPatrol([{x: 101, y: 329}, {x: 307, y: 325}, {x: 309, y: 157}, {x: 104, y: 156}]);
+    }
   }
 </script>
 </head>
