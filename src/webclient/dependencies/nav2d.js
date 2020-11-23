@@ -109,7 +109,6 @@ NAV2D.Navigator = function(options) {
    */
   function sendGoal(pose) {
     if(index !== window.selectedRobotIndex){
-      console.warn(index + ': vou fazer nada');
       return;
     };
     // create a goal
@@ -353,23 +352,18 @@ NAV2D.OccupancyGridClientNav = function(options) {
   this.viewer = options.viewer;
   this.withOrientation = options.withOrientation || false;
 
-  this.navigator = null;
+  this.navigator1 = null;
+  this.navigator2 = null;
 
   // setup a client to get the map
-  var client1 = new ROS2D.OccupancyGridClient({
+  var client = new ROS2D.OccupancyGridClient({
     ros : this.ros,
     rootObject : this.rootObject,
     continuous : continuous,
     topic : topic
   });
-  var client2 = new ROS2D.OccupancyGridClient({
-    ros : this.ros,
-    rootObject : this.rootObject,
-    continuous : continuous,
-    topic : topic
-  });
-  client1.on('change', function() {
-    that.navigator = new NAV2D.Navigator({
+  client.on('change', function() {
+    that.navigator1 = new NAV2D.Navigator({
       ros : that.ros,
       serverName : that.serverName1,
       actionName : that.actionName,
@@ -379,13 +373,7 @@ NAV2D.OccupancyGridClientNav = function(options) {
       poseMessageType: that.poseMessageType,
       index: 0
     });
-    
-    // scale the viewer to fit the map
-    that.viewer.scaleToDimensions(client1.currentGrid.width, client1.currentGrid.height);
-    that.viewer.shift(client1.currentGrid.pose.position.x, client1.currentGrid.pose.position.y);
-  });
-  client2.on('change', function() {
-    that.navigator = new NAV2D.Navigator({
+    that.navigator2 = new NAV2D.Navigator({
       ros : that.ros,
       serverName : that.serverName2,
       actionName : that.actionName,
@@ -397,7 +385,7 @@ NAV2D.OccupancyGridClientNav = function(options) {
     });
     
     // scale the viewer to fit the map
-    that.viewer.scaleToDimensions(client2.currentGrid.width, client2.currentGrid.height);
-    that.viewer.shift(client2.currentGrid.pose.position.x, client2.currentGrid.pose.position.y);
+    that.viewer.scaleToDimensions(client.currentGrid.width, client.currentGrid.height);
+    that.viewer.shift(client.currentGrid.pose.position.x, client.currentGrid.pose.position.y);
   });
 };
