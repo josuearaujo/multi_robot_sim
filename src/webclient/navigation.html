@@ -66,8 +66,36 @@
           this.viewer = new ROS2D.Viewer({
             divID : 'nav',
             width : 750,
-            height : 800
+            height : 700
           });
+        },
+        switchRobot: function() {
+          if(window.selectedRobotIndex === 0) {
+            window.selectedRobotIndex = 1;
+            this.logs.unshift((new Date()).toTimeString() + ' - Selected robot 2')
+          } else {
+            window.selectedRobotIndex = 0;
+            this.logs.unshift((new Date()).toTimeString() + ' - Selected robot 1')
+          }
+        },
+        startPatrol: function() {
+          if(window.selectedRobotIndex === 0) {
+            this.logs.unshift((new Date()).toTimeString() + ' - Started robot 1 patrol');
+            window.nav.navigator1.startPatrol([
+              {x: 529, y: 198, theta: -0.9323139964404594}, 
+              {x: 459, y: 192, theta: -2.6841178056937682}, 
+              {x: 453, y: 340, theta: 2.0243940229026687}, 
+              {x: 526, y: 343, theta: 0.6564111896256672}
+            ]);
+          } else {
+            this.logs.unshift((new Date()).toTimeString() + ' - Started robot 2 patrol');
+            window.nav.navigator2.startPatrol([
+              {x: 308, y: 157, theta: -1.3561322886524252}, 
+              {x: 105, y: 156, theta: -2.414950312908069},
+              {x: 100, y: 329, theta: 1.8516340514160998},
+              {x: 303, y: 331, theta: 0.6383801107286253}
+            ]);
+          }
         }
       },
       mounted() {}
@@ -92,46 +120,22 @@
       withOrientation: true
     });
   }
-
-  function switchRobot() {
-    if(window.selectedRobotIndex === 0) {
-      console.log('SELECTED ROBOT 2');
-      window.selectedRobotIndex = 1;
-    } else {
-      console.log('SELECTED ROBOT 1');
-      window.selectedRobotIndex = 0;
-    }
-  }
-
-  function startPatrol() {  
-    if(window.selectedRobotIndex === 0) {
-      console.log('starting robot 1 patrol...');
-      window.nav.navigator1.startPatrol([
-        {x: 529, y: 198, theta: -0.9323139964404594}, 
-        {x: 459, y: 192, theta: -2.6841178056937682}, 
-        {x: 453, y: 340, theta: 2.0243940229026687}, 
-        {x: 526, y: 343, theta: 0.6564111896256672}
-      ]);
-    } else {
-      console.log('starting robot 2 patrol...');
-      window.nav.navigator2.startPatrol([
-        {x: 308, y: 157, theta: -1.3561322886524252}, 
-        {x: 105, y: 156, theta: -2.414950312908069},
-        {x: 100, y: 329, theta: 1.8516340514160998},
-        {x: 303, y: 331, theta: 0.6383801107286253}
-      ]);
-    }
-  }
 </script>
 </head>
 
 <body onload="init()">
   <div id="app">
-    <h1>Simple Navigation Example</h1>
-    <button onclick="switchRobot()">Switch Robot</button>
-    <button onclick="startPatrol()">Start Patrol</button>
+    <button @click="switchRobot">Switch Robot</button>
+    <button @click="startPatrol">Start Patrol</button>
     <div class="container">
-      <div id="nav"></div>
+      <div class="card" style="margin: 10px 0 10px 0">
+        <div class="card-header">
+          <h4 class="card-header-title">Navigation</h4>
+        </div>
+        <div class="card-body text-center">
+          <div id="nav" class="d-inline-block"></div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-header">
           <h4 class="card-header-title">Recent Activity</h4>
