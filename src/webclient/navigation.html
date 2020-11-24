@@ -51,14 +51,23 @@
                 url: this.ws_address
             });
             this.ros.on('connection', () => {
-                this.logs.unshift((new Date()).toTimeString() + ' - Connected!')
+                this.logs.unshift({
+                  date: (new Date()).toTimeString(),
+                  message: 'Connected!'
+                });
                 this.connected = true
             });
             this.ros.on('error', (error) => {
-                this.logs.unshift((new Date()).toTimeString() + ` - Error: ${error}`)
+                this.logs.unshift({
+                  date: (new Date()).toTimeString(),
+                  message: 'Error: ' + error
+                });
             });
             this.ros.on('close', () => {
-                this.logs.unshift((new Date()).toTimeString() + ' - Disconnected!')
+                this.logs.unshift({
+                  date: (new Date()).toTimeString(),
+                  message: 'Disconnected!'
+                });
                 this.connected = false
             });
         },
@@ -72,15 +81,24 @@
         switchRobot: function() {
           if(window.selectedRobotIndex === 0) {
             window.selectedRobotIndex = 1;
-            this.logs.unshift((new Date()).toTimeString() + ' - Selected robot 2')
+            this.logs.unshift({
+              date: (new Date()).toTimeString(),
+              message: ' Selected robot 2'
+            });
           } else {
             window.selectedRobotIndex = 0;
-            this.logs.unshift((new Date()).toTimeString() + ' - Selected robot 1')
+            this.logs.unshift({
+              date: (new Date()).toTimeString(),
+              message: ' Selected robot 1'
+            });
           }
         },
         startPatrol: function() {
           if(window.selectedRobotIndex === 0) {
-            this.logs.unshift((new Date()).toTimeString() + ' - Started robot 1 patrol');
+            this.logs.unshift({
+              date: (new Date()).toTimeString(),
+              message: ' Started robot 1 patrol'
+            });
             window.nav.navigator1.startPatrol([
               {x: 529, y: 198, theta: -0.9323139964404594}, 
               {x: 459, y: 192, theta: -2.6841178056937682}, 
@@ -88,7 +106,10 @@
               {x: 526, y: 343, theta: 0.6564111896256672}
             ]);
           } else {
-            this.logs.unshift((new Date()).toTimeString() + ' - Started robot 2 patrol');
+            this.logs.unshift({
+              date: (new Date()).toTimeString(),
+              message: ' Started robot 2 patrol'
+            });
             window.nav.navigator2.startPatrol([
               {x: 308, y: 157, theta: -1.3561322886524252}, 
               {x: 105, y: 156, theta: -2.414950312908069},
@@ -143,7 +164,7 @@
           <h4 class="card-header-title">Recent Activity</h4>
         </div>
         <div class="card-body">
-          <p v-for="log of logs">{{ log }}</p>
+          <p v-for="log of logs"><span style="color: gray; font-size: 12px; position: relative; bottom: 2px;">{{ log.date }}</span> - {{ log.message }}</p>
         </div>
       </div>
     </div> 

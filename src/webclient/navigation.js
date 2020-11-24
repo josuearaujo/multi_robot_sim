@@ -110,7 +110,10 @@ var NAV2D = NAV2D || {
      */
     function sendGoal(pose, withoutMarker) {
       if(!(that.patrol && that.patrol.active)) {
-        window.app.logs.unshift((new Date()).toTimeString() + ' - Sending goal to robot ' + (index+1));
+        window.app.logs.unshift({
+            date: (new Date()).toTimeString(),
+            message: 'Sending goal to robot ' + (index+1)
+        });
       }
   
       // create a goal and send it to robot ${index}
