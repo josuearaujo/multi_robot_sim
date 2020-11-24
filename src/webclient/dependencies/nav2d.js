@@ -106,6 +106,7 @@ NAV2D.Navigator = function(options) {
    * Send a goal to the navigation stack with the given pose.
    *
    * @param pose - the goal pose
+   * @param withoutMarker - if set to true, do not create a marker for the goal on the map
    */
   function sendGoal(pose, withoutMarker) {
     console.log('sending goal to robot ' + (index+1));
@@ -121,6 +122,7 @@ NAV2D.Navigator = function(options) {
         }
       }
     });
+    currentGoal = goal;
     goal.send();
 
     // create a marker for the goal
@@ -147,8 +149,12 @@ NAV2D.Navigator = function(options) {
       if(that.patrol && that.patrol.active) {
         var coordIndex = that.patrol.nextIndex;
         var coords = stage.globalToRos(that.patrol.coords[coordIndex].x, that.patrol.coords[coordIndex].y);
+        var qz =  Math.sin(-that.patrol.coords[coordIndex].theta/2.0);
+        var qw =  Math.cos(-that.patrol.coords[coordIndex].theta/2.0);
+        var orientation = new ROSLIB.Quaternion({x:0, y:0, z:qz, w:qw});
         var pose = new ROSLIB.Pose({
-          position : new ROSLIB.Vector3(coords)
+          position : new ROSLIB.Vector3(coords),
+          orientation: orientation
         });
         that.patrol.nextIndex++;
         that.patrol.nextIndex = that.patrol.nextIndex % that.patrol.coords.length;
@@ -166,6 +172,7 @@ NAV2D.Navigator = function(options) {
       nextIndex: 0
     };
 
+    
     var stage;
     if (that.rootObject instanceof createjs.Stage) {
       stage = that.rootObject;
@@ -173,8 +180,12 @@ NAV2D.Navigator = function(options) {
       stage = that.rootObject.getStage();
     }
     var coords = stage.globalToRos(posePositions[0].x, posePositions[0].y);
+    var qz =  Math.sin(-posePositions[0].theta/2.0);
+    var qw =  Math.cos(-posePositions[0].theta/2.0);
+    var orientation = new ROSLIB.Quaternion({x:0, y:0, z:qz, w:qw});
     var pose = new ROSLIB.Pose({
-      position : new ROSLIB.Vector3(coords)
+      position : new ROSLIB.Vector3(coords),
+      orientation: orientation
     });
     // send the goal
     sendGoal(pose, true);
@@ -243,7 +254,9 @@ NAV2D.Navigator = function(options) {
         position : new ROSLIB.Vector3(coords)
       });
       // send the goal
-      sendGoal(pose);
+      if(index === window.selectedRobotIndex) {
+        sendGoal(pose);
+      }
     });
   } else { // withOrientation === true
     // setup a click-and-point listener (with orientation)
@@ -259,6 +272,7 @@ NAV2D.Navigator = function(options) {
     var mouseEventHandler = function(event, mouseState) {
 
       if (mouseState === 'down'){
+        console.warn(event.stageX, event.stageY);
         // get position when mouse button is pressed down
         position = stage.globalToRos(event.stageX, event.stageY);
         positionVec3 = new ROSLIB.Vector3(position);
@@ -320,13 +334,13 @@ NAV2D.Navigator = function(options) {
         yDelta =  goalPosVec3.y - positionVec3.y;
         
         thetaRadians  = Math.atan2(xDelta,yDelta);
-        
+
         if (thetaRadians >= 0 && thetaRadians <= Math.PI) {
           thetaRadians += (3 * Math.PI / 2);
         } else {
           thetaRadians -= (Math.PI/2);
         }
-        
+
         var qz =  Math.sin(-thetaRadians/2.0);
         var qw =  Math.cos(-thetaRadians/2.0);
         
@@ -337,7 +351,9 @@ NAV2D.Navigator = function(options) {
           orientation : orientation
         });
         // send the goal
-        sendGoal(pose);
+        if(index === window.selectedRobotIndex) {
+          sendGoal(pose);
+        }
       }
     };
 

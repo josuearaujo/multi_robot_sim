@@ -37,7 +37,7 @@
       poseTopicName1: '/robot1/amcl_pose',
       poseTopicName2: '/robot2/amcl_pose',
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
-      withOrientation: false
+      withOrientation: true
     });
   }
 
@@ -54,10 +54,20 @@
   function startPatrol() {  
     if(window.selectedRobotIndex === 0) {
       console.log('starting robot 1 patrol...');
-      window.nav.navigator1.startPatrol([{x: 527, y: 264}, {x: 455, y: 261}, {x: 450, y: 339}, {x: 526, y: 338}]);
+      window.nav.navigator1.startPatrol([
+        {x: 529, y: 198, theta: -2.711830374493105}, 
+        {x: 459, y: 192, theta: -4.1365233398553904}, 
+        {x: 453, y: 340, theta: 6.494278640402333}, 
+        {x: 526, y: 343, theta: 4.745709976262936}
+      ]);
     } else {
       console.log('starting robot 2 patrol...');
-      window.nav.navigator2.startPatrol([{x: 101, y: 329}, {x: 307, y: 325}, {x: 309, y: 157}, {x: 104, y: 156}]);
+      window.nav.navigator2.startPatrol([
+        {x: 308, y: 157, theta: -2.9951760777830545}, 
+        {x: 105, y: 156, theta: -4.552158296106628},
+        {x: 100, y: 329, theta: 6.264248177277206},
+        {x: 303, y: 331, theta: 4.775051931000797}
+      ]);
     }
   }
 </script>
