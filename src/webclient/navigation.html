@@ -26,7 +26,10 @@
   .active {
     border: 1px solid #007bff;
   }
-</style>
+  .gray-hover:hover {
+    background-color: #f9fbfd;
+  }
+  </style>
 
 <script type="text/javascript" src="dependencies/easeljs.min.js"></script>
 <script type="text/javascript" src="dependencies/eventemitter2.min.js"></script>
@@ -163,13 +166,13 @@
               <h4 class="card-header-title">Robots</h4>
             </div>
             <div class="card-body text-center">
-              <div class="card" v-bind:class="[selectedRobotIndex === 0 ? 'active' : '']" style="margin-bottom: 10px; cursor: pointer;" @click="selectRobot(0)">
+              <div class="card gray-hover" v-bind:class="[selectedRobotIndex === 0 ? 'active' : '']" style="margin-bottom: 10px; cursor: pointer;" @click="selectRobot(0)">
                 <div class="card-body">
                   <div class="row align-items-center">
                     <div class="col">
   
                       <!-- Title -->
-                      <h6 class="text-uppercase mb-2 text-left" style="color: orange; letter-spacing: .08em;">
+                      <h6 class="text-uppercase mb-2 text-left" style="color: rgb(255, 128, 0); letter-spacing: .08em;">
                         Robot 1
                       </h6>
   
@@ -181,13 +184,13 @@
                   </div> 
                 </div>
               </div>
-              <div class="card" v-bind:class="[selectedRobotIndex === 1 ? 'active' : '']" style="margin-bottom: 10px; cursor: pointer;" @click="selectRobot(1)">
+              <div class="card gray-hover" v-bind:class="[selectedRobotIndex === 1 ? 'active' : '']" style="margin-bottom: 10px; cursor: pointer;" @click="selectRobot(1)">
                 <div class="card-body">
                   <div class="row align-items-center">
                     <div class="col">
   
                       <!-- Title -->
-                      <h6 class="text-uppercase mb-2 text-left" style="color: blue; letter-spacing: .08em;">
+                      <h6 class="text-uppercase mb-2 text-left" style="color: rgb(128, 255, 0); letter-spacing: .08em;">
                         Robot 2
                       </h6>
   

@@ -241,11 +241,15 @@ var NAV2D = NAV2D || {
       stage = that.rootObject.getStage();
     }
   
+    var fillColor = createjs.Graphics.getRGB(255, 128, 0, 0.66);
+    if(index === 1) {
+      fillColor = createjs.Graphics.getRGB(128, 255, 0, 0.66);
+    }
     // marker for the robot
     var robotMarker = new ROS2D.NavigationArrow({
       size : 25,
       strokeSize : 1,
-      fillColor : createjs.Graphics.getRGB(255, 128, 0, 0.66),
+      fillColor : fillColor,
       pulse : true
     });
     // wait for a pose to come in first
