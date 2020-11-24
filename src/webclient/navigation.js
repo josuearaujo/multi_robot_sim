@@ -109,7 +109,9 @@ var NAV2D = NAV2D || {
      * @param withoutMarker - if set to true, do not create a marker for the goal on the map
      */
     function sendGoal(pose, withoutMarker) {
-      console.log('sending goal to robot ' + (index+1));
+      if(!(that.patrol && that.patrol.active)) {
+        window.app.logs.unshift((new Date()).toTimeString() + ' - Sending goal to robot ' + (index+1));
+      }
   
       // create a goal and send it to robot ${index}
       var goal = new ROSLIB.Goal({
