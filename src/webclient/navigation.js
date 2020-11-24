@@ -199,7 +199,6 @@ var NAV2D = NAV2D || {
      */
     
     function createPoseMessage(x, y, theta) {
-      console.warn(theta);
       // convert map coordinates to ROS coordinates
       var coords = stage.globalToRos(x, y);
       var config = {
@@ -292,7 +291,7 @@ var NAV2D = NAV2D || {
         var pose = createPoseMessage(event.stageX, event.stageY);
         // send the goal if this robot is the one selected
         // without this check, every robot would receive the goal
-        if(index === window.selectedRobotIndex) {
+        if(index === window.app.selectedRobotIndex) {
           sendGoal(pose);
         }
       });
@@ -379,7 +378,7 @@ var NAV2D = NAV2D || {
           });
           // send the goal if this robot is the one selected
           // without this check, every robot would receive the goal
-          if(index === window.selectedRobotIndex) {
+          if(index === window.app.selectedRobotIndex) {
             sendGoal(pose);
           }
         }
