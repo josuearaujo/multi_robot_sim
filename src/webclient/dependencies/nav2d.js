@@ -175,7 +175,6 @@ NAV2D.Navigator = function(options) {
    * @param theta - orientation of the robot in radians (optional)
    */
   function getOrientationParams(theta) {
-    console.warn(theta);
     if (theta >= 0 && theta <= Math.PI) {
       theta += (3 * Math.PI / 2);
     } else {
@@ -408,8 +407,12 @@ NAV2D.Navigator = function(options) {
  *   * topic (optional) - the map topic to listen to
  *   * rootObject (optional) - the root object to add this marker to
  *   * continuous (optional) - if the map should be continuously loaded (e.g., for SLAM)
- *   * serverName (optional) - the action server name to use for navigation, like '/move_base'
- *   * actionName (optional) - the navigation action name, like 'move_base_msgs/MoveBaseAction'
+ *   * serverName (optional) - the action server name to use for navigation (default: '/move_base')
+ *                             can be a string (single robot) or an array of strings (multiple robots)
+ *   * poseTopicName (optional) - the topic name to get robot position (default '/robot_pose')
+ *                                can be a string (single robot) or an array of strings (multiple robots)  
+ *   * poseMessageType (optional) - poseTopicName's message type (default 'geometry_msgs/Pose')
+ *   * actionName (optional) - the navigation action name (default: 'move_base_msgs/MoveBaseAction')
  *   * rootObject (optional) - the root object to add the click listeners to and render robot markers to
  *   * withOrientation (optional) - if the Navigator should consider the robot orientation (default: false)
  *   * viewer - the main viewer to render to
@@ -420,11 +423,9 @@ NAV2D.OccupancyGridClientNav = function(options) {
   this.ros = options.ros;
   var topic = options.topic || '/map';
   var continuous = options.continuous;
-  this.serverName1 = options.serverName1 || '/move_base';
-  this.serverName2 = options.serverName2 || '/move_base';
+  this.serverName = options.serverName || '/move_base';
   this.actionName = options.actionName || 'move_base_msgs/MoveBaseAction';
-  this.poseTopicName1 = options.poseTopicName1 || '/robot_pose';
-  this.poseTopicName2 = options.poseTopicName2 || '/robot_pose';
+  this.poseTopicName = options.poseTopicName || '/robot_pose';
   this.poseMessageType = options.poseMessageType || 'geometry_msgs/Pose';
   this.rootObject = options.rootObject || new createjs.Container();
   this.viewer = options.viewer;
@@ -441,27 +442,22 @@ NAV2D.OccupancyGridClientNav = function(options) {
     topic : topic
   });
   client.on('change', function() {
-    that.navigator1 = new NAV2D.Navigator({
-      ros : that.ros,
-      serverName : that.serverName1,
-      actionName : that.actionName,
-      rootObject : that.rootObject,
-      withOrientation : that.withOrientation,
-      poseTopicName: that.poseTopicName1,
-      poseMessageType: that.poseMessageType,
-      index: 0
-    });
-    that.navigator2 = new NAV2D.Navigator({
-      ros : that.ros,
-      serverName : that.serverName2,
-      actionName : that.actionName,
-      rootObject : that.rootObject,
-      withOrientation : that.withOrientation,
-      poseTopicName: that.poseTopicName2,
-      poseMessageType: that.poseMessageType,
-      index: 1
-    });
-    
+    // create one navigator for each robot
+    if(typeof that.serverName === 'object' && that.serverName != null) {
+      var navigatorKey = 'navigator';
+      for(var i=0; i<that.serverName.length; i++) {
+        that[navigatorKey+(i+1)] = new NAV2D.Navigator({
+          ros : that.ros,
+          serverName : that.serverName[i],
+          actionName : that.actionName,
+          rootObject : that.rootObject,
+          withOrientation : that.withOrientation,
+          poseTopicName: that.poseTopicName[i],
+          poseMessageType: that.poseMessageType,
+          index: i
+        });
+      }
+    }
     // scale the viewer to fit the map
     that.viewer.scaleToDimensions(client.currentGrid.width, client.currentGrid.height);
     that.viewer.shift(client.currentGrid.pose.position.x, client.currentGrid.pose.position.y);

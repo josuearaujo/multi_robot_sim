@@ -32,10 +32,8 @@
       ros : ros,
       rootObject : viewer.scene,
       viewer : viewer,
-      serverName1 : '/robot1/move_base',
-      serverName2 : '/robot2/move_base',
-      poseTopicName1: '/robot1/amcl_pose',
-      poseTopicName2: '/robot2/amcl_pose',
+      serverName : ['/robot1/move_base', '/robot2/move_base'],
+      poseTopicName: ['/robot1/amcl_pose', '/robot2/amcl_pose'],
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
       withOrientation: true
     });
