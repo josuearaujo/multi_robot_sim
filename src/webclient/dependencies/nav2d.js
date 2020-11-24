@@ -110,6 +110,7 @@ NAV2D.Navigator = function(options) {
    */
   function sendGoal(pose, withoutMarker) {
     console.log('sending goal to robot ' + (index+1));
+
     // create a goal
     var goal = new ROSLIB.Goal({
       actionClient : actionClient,
@@ -125,25 +126,13 @@ NAV2D.Navigator = function(options) {
     currentGoal = goal;
     goal.send();
 
-    // create a marker for the goal
-    var goalMarker = new ROS2D.NavigationArrow({
-      size : 15,
-      strokeSize : 1,
-      fillColor : createjs.Graphics.getRGB(255, 64, 128, 0.66),
-      pulse : true
-    });
-    goalMarker.x = pose.position.x;
-    goalMarker.y = -pose.position.y;
-    goalMarker.rotation = stage.rosQuaternionToGlobalTheta(pose.orientation);
-    if(withoutMarker) {
-      goalMarker.scaleX = 0 / stage.scaleX;
-      goalMarker.scaleY = 0 / stage.scaleY;
-    } else {
-      goalMarker.scaleX = 0.5 / stage.scaleX;
-      goalMarker.scaleY = 0.5 / stage.scaleY;
-    }
-    that.rootObject.addChild(goalMarker);
+    // create a marker for the goal and put it on the canvas
+    if(!withoutMarker) {
+      var goalMarker = createMarker(pose);
+      that.rootObject.addChild(goalMarker);
+    } 
 
+    // handle goal result
     goal.on('result', function() {
       that.rootObject.removeChild(goalMarker);
       if(that.patrol && that.patrol.active) {
@@ -163,7 +152,33 @@ NAV2D.Navigator = function(options) {
     });
   }
 
-  that.sendGoal = sendGoal;
+   /**
+   * Create a marker on the map.
+   *
+   * @param pose - the pose that the marker will be based upon
+   * @param customConfig - optional config for the marker
+   */
+  function createMarker(pose, customConfig) {
+    var defaultConfig = {
+      size : 15,
+      strokeSize : 1,
+      fillColor : createjs.Graphics.getRGB(255, 64, 128, 0.66),
+      pulse : true
+    }
+    var config = customConfig || defaultConfig;
+    var marker = new ROS2D.NavigationArrow({
+      size : 15,
+      strokeSize : 1,
+      fillColor : createjs.Graphics.getRGB(255, 64, 128, 0.66),
+      pulse : true
+    });
+    marker.x = pose.position.x;
+    marker.y = -pose.position.y;
+    marker.rotation = stage.rosQuaternionToGlobalTheta(pose.orientation);
+    marker.scaleX = 0.5 / stage.scaleX;
+    marker.scaleY = 0.5 / stage.scaleY;
+    return marker;
+  }
 
   function startPatrol(posePositions) {
     that.patrol = {
