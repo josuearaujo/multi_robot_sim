@@ -8,30 +8,65 @@
 <script type="text/javascript" src="dependencies/roslib.min.js"></script>
 <script type="text/javascript" src="dependencies/ros2d.min.js"></script>
 <script type="text/javascript" src="dependencies/nav2d.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
 <script type="text/javascript">
   /**
    * Setup all GUI elements when the page is loaded.
    */
   function init() {
+
+    var app = new Vue({
+      el: '#app',
+      // storing the state of the page
+      data: {
+          logs: [],
+          ws_address: 'ws://localhost:9090',
+          conected: false,
+          ros: null,
+          viewer: null
+      },
+      methods: {
+        connect: function() {
+            this.ros = new ROSLIB.Ros({
+                url: this.ws_address
+            });
+            this.ros.on('connection', () => {
+                this.logs.unshift((new Date()).toTimeString() + ' - Connected!')
+                this.connected = true
+            });
+            this.ros.on('error', (error) => {
+                this.logs.unshift((new Date()).toTimeString() + ` - Error: ${error}`)
+            });
+            this.ros.on('close', () => {
+                this.logs.unshift((new Date()).toTimeString() + ' - Disconnected!')
+                this.connected = false
+            });
+        },
+        createViewer: function() {
+          this.viewer = new ROS2D.Viewer({
+            divID : 'nav',
+            width : 750,
+            height : 800
+          });
+        }
+      },
+      mounted() {}
+    })
+
     window.selectedRobotIndex = 0
+
     // Connect to ROS.
-    var ros = new ROSLIB.Ros({
-      url : 'ws://localhost:9090'
-    });
+    app.connect();
 
     // Create the main viewer.
-    var viewer = new ROS2D.Viewer({
-      divID : 'nav',
-      width : 750,
-      height : 800
-    });
+    app.createViewer();
 
     // Setup the nav client.
     window.nav = NAV2D.OccupancyGridClientNav({
-      ros : ros,
-      rootObject : viewer.scene,
-      viewer : viewer,
+      ros : app.ros,
+      rootObject : app.viewer.scene,
+      viewer : app.viewer,
       serverName : ['/robot1/move_base', '/robot2/move_base'],
       poseTopicName: ['/robot1/amcl_pose', '/robot2/amcl_pose'],
       poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
@@ -72,9 +107,11 @@
 </head>
 
 <body onload="init()">
-  <h1>Simple Navigation Example</h1>
-  <button onclick="switchRobot()">Switch Robot</button>
-  <button onclick="startPatrol()">Start Patrol</button>
-  <div id="nav"></div>
+  <div id="app">
+    <h1>Simple Navigation Example</h1>
+    <button onclick="switchRobot()">Switch Robot</button>
+    <button onclick="startPatrol()">Start Patrol</button>
+    <div id="nav"></div>
+  </div>
 </body>
 </html>
