@@ -170,6 +170,23 @@ NAV2D.Navigator = function(options) {
   }
 
   /**
+   * Get z and w orientation params of the quaternion
+   *
+   * @param theta - orientation of the robot in radians (optional)
+   */
+  function getOrientationParams(theta) {
+    console.warn(theta);
+    if (theta >= 0 && theta <= Math.PI) {
+      theta += (3 * Math.PI / 2);
+    } else {
+      theta -= (Math.PI/2);
+    }
+    var qz =  Math.sin(-theta/2.0);
+    var qw =  Math.cos(-theta/2.0);
+    return {qz: qz, qw: qw};
+  }
+
+  /**
    * Create a pose message to send to the robot
    *
    * @param x - position x of the map
@@ -185,14 +202,8 @@ NAV2D.Navigator = function(options) {
       position : new ROSLIB.Vector3(coords)
     }
     if(theta) {
-      if (theta >= 0 && theta <= Math.PI) {
-        theta += (3 * Math.PI / 2);
-      } else {
-        theta -= (Math.PI/2);
-      }
-      var qz =  Math.sin(-theta/2.0);
-      var qw =  Math.cos(-theta/2.0);
-      config.orientation = new ROSLIB.Quaternion({x:0, y:0, z:qz, w:qw});
+      var orientation = getOrientationParams(theta);
+      config.orientation = new ROSLIB.Quaternion({x:0, y:0, z: orientation.qz, w: orientation.qw});
     }
     return new ROSLIB.Pose(config);
   }
@@ -295,7 +306,6 @@ NAV2D.Navigator = function(options) {
     var mouseEventHandler = function(event, mouseState) {
 
       if (mouseState === 'down'){
-        console.warn(event.stageX, event.stageY);
         // get position when mouse button is pressed down
         position = stage.globalToRos(event.stageX, event.stageY);
         positionVec3 = new ROSLIB.Vector3(position);
@@ -355,9 +365,16 @@ NAV2D.Navigator = function(options) {
         xDelta =  goalPosVec3.x - positionVec3.x;
         yDelta =  goalPosVec3.y - positionVec3.y;
         thetaRadians  = Math.atan2(xDelta,yDelta);
-
-        var pose = createPoseMessage(event.stageX, event.stageY, thetaRadians);
-        // send the goal
+        var orientationParams = getOrientationParams(thetaRadians);
+        var orientation = new ROSLIB.Quaternion({x:0, y:0, z: orientationParams.qz, w: orientationParams.qw});
+        
+        // send goal
+        var pose = new ROSLIB.Pose({
+          position :    positionVec3,
+          orientation : orientation
+        });
+        // send the goal if this robot is the one selected
+        // without this check, every robot would receive the goal
         if(index === window.selectedRobotIndex) {
           sendGoal(pose);
         }
