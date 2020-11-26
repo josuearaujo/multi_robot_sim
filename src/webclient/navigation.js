@@ -94,6 +94,12 @@ var NAV2D = NAV2D || {
     var withOrientation = options.withOrientation || false;
     var index = options.index;
     this.rootObject = options.rootObject || new createjs.Container();
+    this.status = 'available';
+    this.patrol = {
+      active: false,
+      coords: [],
+      nextIndex: 0,
+    };
   
     // setup the actionlib client
     var actionClient = new ROSLIB.ActionClient({
@@ -114,6 +120,7 @@ var NAV2D = NAV2D || {
             date: (new Date()).toTimeString(),
             message: 'Sending goal to robot ' + (index+1)
         });
+        that.status = 'investigating';
       }
   
       // create a goal and send it to robot ${index}
@@ -229,9 +236,33 @@ var NAV2D = NAV2D || {
       // send robot to first coordinate
       var pose = createPoseMessage(posePositions[0].x, posePositions[0].y, posePositions[0].theta);
       sendGoal(pose, true);
+
+      // update robot status
+      that.status = 'patrolling';
+    }
+
+    /**
+     * Tell robot to stop patrolling 
+     */
+    function stopPatrol() {
+      
+      // reset patrol configuration
+      that.patrol = {
+        active: false,
+        coords: [],
+        nextIndex: 0,
+      };
+  
+      // cancel all moving actions for the robot
+      actionClient.cancel();
+
+      // update robot status
+      that.status = 'available';
     }
   
-    that.startPatrol = startPatrol; // expose patrol method to the application
+    // expose patrol method to the application
+    that.startPatrol = startPatrol; 
+    that.stopPatrol = stopPatrol; 
   
     // get a handle to the stage
     var stage;
@@ -438,9 +469,7 @@ var NAV2D = NAV2D || {
     this.rootObject = options.rootObject || new createjs.Container();
     this.viewer = options.viewer;
     this.withOrientation = options.withOrientation || false;
-  
-    this.navigator1 = null;
-    this.navigator2 = null;
+    that.robots = [];
   
     // setup a client to get the map
     var client = new ROS2D.OccupancyGridClient({
@@ -452,9 +481,8 @@ var NAV2D = NAV2D || {
     client.on('change', function() {
       // create one navigator for each robot
       if(typeof that.serverName === 'object' && that.serverName != null) {
-        var navigatorKey = 'navigator';
         for(var i=0; i<that.serverName.length; i++) {
-          that[navigatorKey+(i+1)] = new NAV2D.Navigator({
+          that.robots[i] = new NAV2D.Navigator({
             ros : that.ros,
             serverName : that.serverName[i],
             actionName : that.actionName,

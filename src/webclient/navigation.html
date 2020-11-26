@@ -53,7 +53,8 @@
           conected: false,
           ros: null,
           viewer: null,
-          selectedRobotIndex: 0
+          selectedRobotIndex: 0,
+          nav: {}
       },
       methods: {
         connect: function() {
@@ -88,6 +89,17 @@
             height : 600
           });
         },
+        createOccupancyGridClientNav: function() {
+          this.nav = NAV2D.OccupancyGridClientNav({
+            ros : app.ros,
+            rootObject : app.viewer.scene,
+            viewer : app.viewer,
+            serverName : ['/robot1/move_base', '/robot2/move_base'],
+            poseTopicName: ['/robot1/amcl_pose', '/robot2/amcl_pose'],
+            poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
+            withOrientation: true
+          });
+        },
         selectRobot: function(index) {
           this.selectedRobotIndex = index;
           this.logs.unshift({
@@ -95,30 +107,29 @@
             message: ' Selected robot ' + (index+1)
           });
         },
-        startPatrol: function() {
-          if(this.selectedRobotIndex === 0) {
-            this.logs.unshift({
-              date: (new Date()).toTimeString(),
-              message: ' Started robot 1 patrol'
-            });
-            window.nav.navigator1.startPatrol([
-              {x: 529, y: 198, theta: -0.9323139964404594}, 
-              {x: 459, y: 192, theta: -2.6841178056937682}, 
-              {x: 453, y: 340, theta: 2.0243940229026687}, 
-              {x: 526, y: 343, theta: 0.6564111896256672}
-            ]);
-          } else {
-            this.logs.unshift({
-              date: (new Date()).toTimeString(),
-              message: ' Started robot 2 patrol'
-            });
-            window.nav.navigator2.startPatrol([
-              {x: 308, y: 157, theta: -1.3561322886524252}, 
-              {x: 105, y: 156, theta: -2.414950312908069},
-              {x: 100, y: 329, theta: 1.8516340514160998},
-              {x: 303, y: 331, theta: 0.6383801107286253}
-            ]);
-          }
+        startPatrol: function(index) {
+          this.logs.unshift({
+            date: (new Date()).toTimeString(),
+            message: ' Started robot ' + (index+1) + ' patrol'
+          });
+          index === 0 && this.nav.robots[0].startPatrol([
+            {x: 529, y: 198, theta: -0.9323139964404594}, 
+            {x: 459, y: 192, theta: -2.6841178056937682}, 
+            {x: 453, y: 340, theta: 2.0243940229026687}, 
+            {x: 526, y: 343, theta: 0.6564111896256672}
+          ]);
+          index === 1 && this.nav.robots[1].startPatrol([
+            {x: 308, y: 157, theta: -1.3561322886524252}, 
+            {x: 105, y: 156, theta: -2.414950312908069},
+            {x: 100, y: 329, theta: 1.8516340514160998},
+            {x: 303, y: 331, theta: 0.6383801107286253}
+          ]);
+        },
+        stopPatrol: function(index) {
+          this.nav.robots[index].stopPatrol();
+        },
+        debug: function() {
+          console.log(this);
         }
       },
       mounted() {}
@@ -131,15 +142,7 @@
     app.createViewer();
 
     // Setup the nav client.
-    window.nav = NAV2D.OccupancyGridClientNav({
-      ros : app.ros,
-      rootObject : app.viewer.scene,
-      viewer : app.viewer,
-      serverName : ['/robot1/move_base', '/robot2/move_base'],
-      poseTopicName: ['/robot1/amcl_pose', '/robot2/amcl_pose'],
-      poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
-      withOrientation: true
-    });
+    app.createOccupancyGridClientNav();
 
     window.app = app;
   }
@@ -178,7 +181,7 @@
   
                       <p class="text-left" style="margin-bottom: 0;">
                         <span style="color: #95aac9;">Status: </span>
-                        <span>patrolling...</span>
+                        <span v-if="nav.robots && nav.robots[0]" v-bind:class="{ 'text-success': nav.robots[0].status === 'available', 'text-warning': nav.robots[0].status === 'investigating', 'text-info': nav.robots[0].status === 'patrolling' }">{{nav.robots[0].status}}</span>
                       </p>
                     </div>
                   </div> 
@@ -196,13 +199,15 @@
   
                       <p class="text-left" style="margin-bottom: 0;">
                         <span style="color: #95aac9;">Status: </span>
-                        <span>waiting...</span>
+                        <span v-if="nav.robots && nav.robots[1]" v-bind:class="{ 'text-success': nav.robots[1].status === 'available', 'text-warning': nav.robots[1].status === 'investigating', 'text-info': nav.robots[1].status === 'patrolling' }">{{nav.robots[1].status}}</span>
                       </p>
                     </div>
                   </div> 
                 </div>
               </div>
-              <button type="button" class="btn btn-outline-primary" @click="startPatrol">Start patrol</button>
+              <button v-if="nav.robots && nav.robots[selectedRobotIndex]" type="button" class="btn btn-outline-primary" v-bind:disabled="nav.robots[selectedRobotIndex].status === 'patrolling'" @click="startPatrol(selectedRobotIndex)">Start patrol</button>
+              <button v-if="nav.robots && nav.robots[selectedRobotIndex]" type="button" class="btn btn-outline-danger" v-bind:disabled="nav.robots[selectedRobotIndex].status !== 'patrolling'" @click="stopPatrol(selectedRobotIndex)">Stop patrol</button>
+              <button type="button" class="btn btn-outline-info" @click="debug">Debug</button>
             </div>
           </div>
         </div>
