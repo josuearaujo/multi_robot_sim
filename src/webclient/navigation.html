@@ -31,6 +31,8 @@
   }
   </style>
 
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 <script type="text/javascript" src="dependencies/easeljs.min.js"></script>
 <script type="text/javascript" src="dependencies/eventemitter2.min.js"></script>
 <script type="text/javascript" src="dependencies/roslib.min.js"></script>
@@ -97,7 +99,7 @@
             serverName : ['/robot1/move_base', '/robot2/move_base'],
             poseTopicName: ['/robot1/amcl_pose', '/robot2/amcl_pose'],
             poseMessageType: 'geometry_msgs/PoseWithCovarianceStamped',
-            withOrientation: true
+            withOrientation: false
           });
         },
         selectRobot: function(index) {
@@ -130,6 +132,16 @@
         },
         debug: function() {
           console.log(this);
+        },
+        reportOcurrence: function() {
+          $('#alert-occurence').toast('show');
+          var navigator = this.nav.robots[0];
+          navigator.rootObject.addChild(navigator.createMarker(navigator.createPoseMessage(62, 201), {
+            size : 15,
+            strokeSize : 1,
+            fillColor : createjs.Graphics.getRGB(255, 0, 0, 0.66),
+            pulse : false
+          }));
         }
       },
       mounted() {}
@@ -144,6 +156,19 @@
     // Setup the nav client.
     app.createOccupancyGridClientNav();
 
+    // randomly generate occurrences
+    window.setInterval(function() {
+      var fakeChanceOfOcurrence = Math.random();
+      if(fakeChanceOfOcurrence < 0.1) {
+        app.reportOcurrence();
+      }
+    }, 5000);
+
+    // initialize occurence alert container
+    $('.toast').toast({
+      autohide: false
+    });
+  
     window.app = app;
   }
 </script>
@@ -152,6 +177,18 @@
 <body onload="init()">
   <div id="app">
     <div class="container">
+      <div id="alert-occurence" style="margin-top: 10px;" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="mr-auto">System</strong>
+          <small>11 mins ago</small>
+          <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="toast-body bg-danger text-white">
+          An occurence has appeared on the map!
+        </div>
+      </div>
       <div class="row">
         <div class="col-md-8">
           <div class="card" style="margin: 10px 0 10px 0">
