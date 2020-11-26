@@ -51,6 +51,7 @@
       // storing the state of the page
       data: {
           logs: [],
+          occurrences: [],
           ws_address: 'ws://localhost:9090',
           conected: false,
           ros: null,
@@ -133,15 +134,37 @@
         debug: function() {
           console.log(this);
         },
-        reportOcurrence: function() {
+        generateOccurrence: function() {
+          // report ocurrence on the interface
           $('#alert-occurence').toast('show');
+          // select a fake location to put the occurrence
           var navigator = this.nav.robots[0];
-          navigator.rootObject.addChild(navigator.createMarker(navigator.createPoseMessage(62, 201), {
+          var markerConfig = {
             size : 15,
             strokeSize : 1,
             fillColor : createjs.Graphics.getRGB(255, 0, 0, 0.66),
             pulse : false
-          }));
+          };
+          var occurrenceCoordinates = [
+            {x: 62, y: 201},
+            {x: 299, y: 164},
+            {x: 508, y: 158},
+            {x: 313, y: 281}
+          ];
+          var locationIndex =  Math.floor(4 * Math.random());
+          var occurrenceLocation = occurrenceCoordinates[locationIndex];
+          var poseMessage = navigator.createPoseMessage(occurrenceLocation.x, occurrenceLocation.y);
+          var occurrenceMark = navigator.createMarker(poseMessage, markerConfig);
+          // put a marker on the map to show where the occurrence is
+          navigator.rootObject.addChild(occurrenceMark);
+          // save a reference to the mark to make it possible to clear it later
+          this.occurrences.push(occurrenceMark);
+        },
+        clearAllOccurrences: function() {
+          var navigator = this.nav.robots[0];
+          for(var i=0; i<this.occurrences.length; i++) {
+            navigator.rootObject.removeChild(this.occurrences[i]);
+          }
         }
       },
       mounted() {}
@@ -158,9 +181,9 @@
 
     // randomly generate occurrences
     window.setInterval(function() {
-      var fakeChanceOfOcurrence = Math.random();
-      if(fakeChanceOfOcurrence < 0.1) {
-        app.reportOcurrence();
+      var fakeChanceOfOccurrence = Math.random();
+      if(fakeChanceOfOccurrence < 0.1) {
+        app.generateOccurrence();
       }
     }, 5000);
 
@@ -245,6 +268,7 @@
               <button v-if="nav.robots && nav.robots[selectedRobotIndex]" type="button" class="btn btn-outline-primary" v-bind:disabled="nav.robots[selectedRobotIndex].status === 'patrolling'" @click="startPatrol(selectedRobotIndex)">Start patrol</button>
               <button v-if="nav.robots && nav.robots[selectedRobotIndex]" type="button" class="btn btn-outline-danger" v-bind:disabled="nav.robots[selectedRobotIndex].status !== 'patrolling'" @click="stopPatrol(selectedRobotIndex)">Stop patrol</button>
               <button type="button" class="btn btn-outline-info" @click="debug">Debug</button>
+              <button type="button" class="btn btn-outline-info" @click="clearAllOccurrences">Clear all occurrences</button>
             </div>
           </div>
         </div>

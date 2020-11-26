@@ -115,7 +115,6 @@ var NAV2D = NAV2D || {
      * @param withoutMarker - if set to true, do not create a marker for the goal on the map
      */
     function sendGoal(pose, withoutMarker) {
-      console.warn('wtf');
       if(!(that.patrol && that.patrol.active)) {
         window.app.logs.unshift({
             date: (new Date()).toTimeString(),
@@ -329,8 +328,6 @@ var NAV2D = NAV2D || {
       // setup a double click listener (no orientation)
       this.rootObject.addEventListener('dblclick', function(event) {
         var pose = createPoseMessage(event.stageX, event.stageY);
-        console.warn(event.stageX);
-        console.warn(event.stageY);
         // send the goal if this robot is the one selected
         // without this check, every robot would receive the goal
         if(index === window.app.selectedRobotIndex) {
