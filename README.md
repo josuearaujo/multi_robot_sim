@@ -1,17 +1,10 @@
-Esse repositório é fruto do meu Trabalho de Conclusão de Curso em Engenharia de Computação.
+Trabalho de Conclusão de Curso em Engenharia de Computação
 
-Links para visualizar o projeto sendo executado em ambiente de simulação:
+**Obs:** as seguintes configurações são apenas para **Ubuntu 16** e pressupõem que o ROS e suas dependências já estejam instaladas
 
-- https://youtu.be/N_OyoeiHZF8
+Os seguintes passos devem ser seguidos para configurar o ambiente e executar o projeto:
 
-- https://youtu.be/WKHKqFszIp4
-
-- https://youtu.be/XxSGK61x3ms
-
-O trabalho completo pode ser lido no arquivo "TCC - Josue Araujo.pdf" que se encontra nesse repositório.
-
-
-Os seguintes passos devem ser seguidos para configurar o ambinete e executar o projeto:
+### Criar o workspace
 
 1º - Criar uma pasta que será o seu catkin workspace 
 
@@ -25,7 +18,7 @@ Os seguintes passos devem ser seguidos para configurar o ambinete e executar o p
 2º - Clonar esse repositório na pasta src do seu workspace que acabou de ser criada.
 
 	$ cd ~/catkin_ws/src
-	$ git clone https://github.com/josuearaujo/multi_robot_sim.git
+	$ git clone https://github.com/gabrielmcoelho/multi_robot_sim.git
 
 3º - Voltar para a pasta raiz do seu workspace e executar o catkin_make:
 
@@ -36,8 +29,7 @@ Os seguintes passos devem ser seguidos para configurar o ambinete e executar o p
 	
 	$ source ~/catkin_ws/devel/setup.bash
 	
-5º - Agora você já pode executar os comandos ROS utilizando o namespace do projeto:
-	O seguinte comando, por exemplo, o levará direto para a pasta do projeto.
+5º - Agora você já pode executar os comandos ROS utilizando o namespace do projeto. O seguinte comando, por exemplo, o levará direto para a pasta do projeto:
 
 	$ roscd multi_robot_sim
 
@@ -48,26 +40,29 @@ Os seguintes passos devem ser seguidos para configurar o ambinete e executar o p
 	source ~/catkin_ws/devel/setup.bash
 	export TURTLEBOT_3D_SENSOR="kinect"
 
+### Executar o projeto
 
-Com o ambiente configurado, precisa-se iniciar os seguintes módulos do sistema:
-1º - Instanciar o ambiente de simulação, robos, etc:
+1º - Instanciar o ambiente de simulação, robôs, etc:
 
 	$ roslaunch multi_robot_sim robots_gazebo_rviz.launch 
 
-2º - Servidor:
+2º - Servidor ROS:
 
 	$ rosrun multi_robot_sim productor_consumer.py
 
-3º - Máquinas de estado dos Robôs:
+3º - Máquinas de estado dos robôs:
 
 	$ rosrun multi_robot_sim states_robot1.py
 	$ rosrun multi_robot_sim states_robot2.py
 
-4º - Cliente (Simulador de pedidos de café):
+4º - Servidor web:
 
-	$ rosrun multi_robot_sim client.py
+	$ roscd multi_robot_sim && cd src/
+	$ python -m SimpleHTTPServer
 
+5º - Rosbridge (conexão entre servidor web e servidor ROS):
 
-A cada ENTER que for dado no terminal do cliente, um pedido de café será enviado. Será possível visualizar no Gazebo e no Rviz (iniciados no passo 1) o robô se locomovendo até o ponto de destino.
-
+	$ roslaunch rosbridge_server rosbridge_websocket.launch
+	
+E, para finalizar, basta acessar o navegador no endereço http://localhost:8000/web_client.html
 
